@@ -1,0 +1,52 @@
+# React build artifacts
+build/
+node_modules/
+# Node.js dependencies
+node_modules/
+
+# Packaging files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated files
+coverage/
+*.map
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files and backups
+*.tmp
+*.swp
+*.swo
+*.bak
+*.~*
+
+# IDE and Editor settings
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.iml
+
+# Build files
+/dist/
+build/
+out/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Dependency directories
+node_modules/
+vendor/
