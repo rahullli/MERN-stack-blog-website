@@ -215,7 +215,9 @@ const BlogEditor = () => {
       toast.success("Draft saved successfully!");
   
       // Navigate to home page
-      navigate("/");
+      setTimeout(()=>{
+        navigate("/");
+      },500)
   
     } catch (error) {
       // Handle errors (API or text editor)
