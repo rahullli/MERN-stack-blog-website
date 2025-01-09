@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react"
 const InPageNavigationComponent = ({routes, defaultActiveIndex = 0, defaultHidden = [], children}) => {
     let activeTabLineRef = useRef();
     let activeTabRef = useRef();
-    const [inPageNavIndex, setInPageNavIndex] = useState(0);
+    const [inPageNavIndex, setInPageNavIndex] = useState(defaultActiveIndex);
 
     const changePageState = (btn,i) =>{
         let { offsetWidth, offsetLeft} = btn;
@@ -22,16 +22,21 @@ const InPageNavigationComponent = ({routes, defaultActiveIndex = 0, defaultHidde
             {
                 routes.map((route,i)=>{
                     return (
-                        <button ref={i === defaultActiveIndex ? activeTabRef : null} onClick ={ (e)=>{
+                        <button ref={i == defaultActiveIndex ? activeTabRef : null} 
+                        onClick ={ (e)=>{
                             changePageState(e.target, i)
-                        }} key={i} className={"p-4 px-5 capitalize " + (inPageNavIndex == i ? "text-black" : "text-dark-grey ") + ( defaultHidden.includes(route) ? "hidden" : "")}>
+                        }} key={i} className={"p-4 px-5 capitalize " + (inPageNavIndex == i ? "text-black" : "text-dark-grey ") + ( defaultHidden.includes(route) ? "md:hidden" : "")}>
                             {route}
-                        </button>   
+                        </button> 
+                        // <button 
+                        //  key={i} className={"p-4 px-5 capitalize "}>
+                        //     {route}
+                        // </button>    
                     )
                 })
             }
 
-            <hr ref={activeTabLineRef}  className="absolute bottom-0 duration-300"></hr>
+            <hr ref={activeTabLineRef}  className="absolute bottom-0 duration-300"/>
         </div>
         { Array.isArray(children) ? children[inPageNavIndex] : children }
     </>
