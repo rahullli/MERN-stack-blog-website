@@ -5,6 +5,8 @@ import axios from "axios";
 import Loader from "../components/loader.component";
 import BlogPostCard from "../components/blog-post.component";
 import MinimalBlogPost from "../components/nobanner-blog-post.component";
+import {activeTabRef} from "../components/inpage-navigation.component";
+import NoDataMessage from "../components/nodata.component";
 
 const HomePage = () => {
   const [blogs, setBlog] = useState(null);
@@ -21,9 +23,9 @@ const HomePage = () => {
     "finances",
     "travel",
   ];
-  const fetchLatestBlogs = () => {
+  const fetchLatestBlogs = ( page = 1 ) => {
     axios
-      .get(import.meta.env.VITE_SERVER_DOMAIN + "/latest-blogs")
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/latest-blogs", { page })
       .then(({ data }) => {
         setBlog(data.blogs);
       })
@@ -53,15 +55,21 @@ const HomePage = () => {
   }
 
   useEffect(() => {
-    fetchLatestBlogs();
-    fetchTrendingBlogs();
-  }, []);
+
+    activeTabRef.current.click();
+    if(pageState == "home"){
+      fetchLatestBlogs();
+    }
+    if(!trendingBlogs){
+      fetchTrendingBlogs();
+    }
+  }, [pageState]);
   return (
     <AnimationWrapper>
       <section className="h-cover flex justify-center gap-10">
         <div className="w-full">
           <InPageNavigationComponent
-            routes={["home", "trending blogs"]}
+            routes={[pageState, "trending blogs"]}
             defaultHidden={["trending blogs"]}
           >
             {/* <h1>Latest Blogs Here</h1> */}
@@ -69,34 +77,41 @@ const HomePage = () => {
               {blogs === null ? (
                 <Loader />
               ) : (
-                blogs.map((blog, i) => {
-                  return (
-                    <AnimationWrapper
-                      transition={{ duration: 1, delay: i * 0.1 }}
-                      key={i}
-                    >
-                      <BlogPostCard
-                        content={blog}
-                        author={blog.author.personal_info}
-                      />
-                    </AnimationWrapper>
-                  );
-                })
+
+                blogs.length ? 
+                  blogs.map((blog, i) => {
+                    return (
+                      <AnimationWrapper
+                        transition={{ duration: 1, delay: i * 0.1 }}
+                        key={i}
+                      >
+                        <BlogPostCard
+                          content={blog}
+                          author={blog.author.personal_info}
+                        />
+                      </AnimationWrapper>
+                    );
+                  })
+                  : 
+                  <NoDataMessage message= "No blogs published."/>
               )}
             </>
             {trendingBlogs === null ? (
               <Loader />
             ) : (
-              trendingBlogs.map((blog, i) => {
-                return (
-                  <AnimationWrapper
-                    transition={{ duration: 1, delay: i * 0.1 }}
-                    key={i}
-                  >
-                    <MinimalBlogPost blog={blog} index={i} />
-                  </AnimationWrapper>
-                );
-              })
+              trendingBlogs.length ? 
+                trendingBlogs.map((blog, i) => {
+                  return (
+                    <AnimationWrapper
+                      transition={{ duration: 1, delay: i * 0.1 }}
+                      key={i}
+                    >
+                      <MinimalBlogPost blog={blog} index={i} />
+                    </AnimationWrapper>
+                  );
+                })
+                :
+                <NoDataMessage message= "No Trending Blogs."/>
             )}
 
             <h1>Trending Blogs Here</h1>
@@ -113,7 +128,7 @@ const HomePage = () => {
               <div className="flex gap-3 flex-wrap">
                 {cateogaries.map((cateogary, i) => {
                   return (
-                    <button onClick={loadBlogByCateogary} key={i} className="tag">
+                    <button onClick={loadBlogByCateogary} key={i} className={"tag " + (pageState == cateogary ? "bg-black text-white " : "")}>
                       {cateogary}
                     </button>
                   );
@@ -128,16 +143,19 @@ const HomePage = () => {
               {trendingBlogs === null ? (
                 <Loader />
               ) : (
-                trendingBlogs.map((blog, i) => {
-                  return (
-                    <AnimationWrapper
-                      transition={{ duration: 1, delay: i * 0.1 }}
-                      key={i}
-                    >
-                      <MinimalBlogPost blog={blog} index={i} />
-                    </AnimationWrapper>
-                  );
-                })
+                trendingBlogs.length ? 
+                  trendingBlogs.map((blog, i) => {
+                    return (
+                      <AnimationWrapper
+                        transition={{ duration: 1, delay: i * 0.1 }}
+                        key={i}
+                      >
+                        <MinimalBlogPost blog={blog} index={i} />
+                      </AnimationWrapper>
+                    );
+                  })
+                  :
+                <NoDataMessage message= "No Trending Blogs."/>
               )}
             </div>
           </div>
