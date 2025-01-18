@@ -7,6 +7,8 @@ import BlogPostCard from "../components/blog-post.component";
 import MinimalBlogPost from "../components/nobanner-blog-post.component";
 import {activeTabRef} from "../components/inpage-navigation.component";
 import NoDataMessage from "../components/nodata.component";
+import { filterPaginationData } from "../common/filter-pagination-data";
+import LoadMoreDataBtn from "../components/load-more.component";
 
 const HomePage = () => {
   const [blogs, setBlog] = useState(null);
@@ -23,11 +25,35 @@ const HomePage = () => {
     "finances",
     "travel",
   ];
-  const fetchLatestBlogs = ( page = 1 ) => {
+  const fetchLatestBlogs = ( {page = 1} ) => {
     axios
       .post(import.meta.env.VITE_SERVER_DOMAIN + "/latest-blogs", { page })
-      .then(({ data }) => {
-        setBlog(data.blogs);
+      .then(async({ data }) => {
+        let formatedData= await filterPaginationData({
+          state: blogs, 
+          data: data.blogs,
+          page,
+          countRoute: "/all-latest-blogs-count",
+        });
+        setBlog(formatedData);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const fetchBlogsByCateogary = ({page = 1}) => {
+    axios
+      .get(import.meta.env.VITE_SERVER_DOMAIN + "/search-blogs", {tag: pageState, page})
+      .then(async({ data }) => {
+        let formatedData= await filterPaginationData({
+          state: blogs, 
+          data: data.blogs,
+          page,
+          countRoute: "/s",
+          data_to_send: {tag: pageState}
+        });
+        setBlog(formatedData);
       })
       .catch((err) => {
         console.log(err);
@@ -58,7 +84,10 @@ const HomePage = () => {
 
     activeTabRef.current.click();
     if(pageState == "home"){
-      fetchLatestBlogs();
+      fetchLatestBlogs({page: 1});
+    }
+    else{
+      fetchBlogsByCateogary({page: 1});
     }
     if(!trendingBlogs){
       fetchTrendingBlogs();
@@ -78,8 +107,8 @@ const HomePage = () => {
                 <Loader />
               ) : (
 
-                blogs.length ? 
-                  blogs.map((blog, i) => {
+                blogs.results.length ? 
+                  blogs.results.map((blog, i) => {
                     return (
                       <AnimationWrapper
                         transition={{ duration: 1, delay: i * 0.1 }}
@@ -95,6 +124,8 @@ const HomePage = () => {
                   : 
                   <NoDataMessage message= "No blogs published."/>
               )}
+
+              <LoadMoreDataBtn state={blogs} fetchDatafunc = {(pageState == "home" ? fetchLatestBlogs : fetchBlogsByCateogary)}/>
             </>
             {trendingBlogs === null ? (
               <Loader />
